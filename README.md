@@ -1,4 +1,4 @@
-## Mock API
+## Connect Mock API
 
 > Express / Connect middleware for programmable fake APIs
 
@@ -10,24 +10,21 @@ npm install connect-mock-api --save
 
 ## Usage as an express/connect middleware
 
-Open `build/gulp-tasks/lib/middlewares.js`, initialize the module ad return in the middlewares array
-
 ```js
+const express = require('express');
 const mockApiMiddleware = require('mock-api').middleware;
 
-module.exports = function  (/*options*/) {
+const app = express();
 
-    const mocks = mockApiMiddleware({
-        endpoints: [
-            //... endpoints configuration object here, see below
-        ]
-    });
+const mocks = mockApiMiddleware({
+    endpoints: [
+        //... endpoints configuration object here, see below
+    ]
+});
 
-    return [
-        mocks
-        //... other middlewares
-    ];
-};
+app.use(mocks);
+app.listen(8000);
+
 ```
 
 ### Endpoint Configuration
