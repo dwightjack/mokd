@@ -1,0 +1,52 @@
+{
+  "name": "connect-mock-api",
+  "version": "1.0.0",
+  "description": "Fake API server and middleware for connect",
+  "author": "Marco Solazzi",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "files": [
+    "lib",
+    "bin"
+  ],
+  "scripts": {
+    "test": "tape tests/**/*.spec.js | tap-spec",
+    "lint": "eslint .",
+    "start": "nodemon --watch lib lib/server.js --config=./fixtures/config.js"
+  },
+  "keywords": [
+    "api",
+    "connect",
+    "express",
+    "middleware"
+  ],
+  "engines": {
+    "node": ">=6.9.0"
+  },
+  "bin": {
+    "mock-api": "./bin/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.aquest.it/backenders/AQuestSSRMiddleware.git"
+  },
+  "bugs": {
+    "url": "https://git.aquest.it/backenders/AQuestSSRMiddleware/issues"
+  },
+  "homepage": "https://git.aquest.it/backenders/AQuestSSRMiddleware",
+  "dependencies": {
+    "chance": "1.0.4",
+    "connect": "3.5.0",
+    "lodash": "4.17.2",
+    "yargs": "6.4.0"
+  },
+  "devDependencies": {
+    "eslint": "3.11.1",
+    "eslint-config-airbnb-base": "10.0.1",
+    "eslint-plugin-import": "2.2.0",
+    "nodemon": "1.11.0",
+    "sinon": "1.17.6",
+    "tap-spec": "4.1.1",
+    "tape": "4.6.3"
+  }
+}
