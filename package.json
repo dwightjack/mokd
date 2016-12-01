@@ -1,7 +1,7 @@
 {
   "name": "connect-mock-api",
   "version": "1.0.0",
-  "description": "Fake API server and middleware for connect",
+  "description": "Fake API server and middleware for connect and express",
   "author": "Marco Solazzi",
   "license": "MIT",
   "main": "lib/index.js",
@@ -36,11 +36,11 @@
   "homepage": "https://git.aquest.it/backenders/AQuestSSRMiddleware",
   "dependencies": {
     "chance": "1.0.4",
-    "connect": "3.5.0",
     "lodash": "4.17.2",
     "yargs": "6.4.0"
   },
   "devDependencies": {
+    "connect": "3.5.0",
     "eslint": "3.11.1",
     "eslint-config-airbnb-base": "10.0.1",
     "eslint-plugin-import": "2.2.0",
