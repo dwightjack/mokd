@@ -23,6 +23,13 @@ module.exports = (chance) => { //eslint-disable-line arrow-body-style
              */
             number: () => chance.natural()
         }
+    }, {
+        path: '/list',
+        template: [{
+            name: 'John'
+        }, {
+            name: 'Jane'
+        }]
     }];
 
 };

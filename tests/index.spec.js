@@ -104,21 +104,8 @@ test('`Middleware.parseData`', (assert) => {
         'Not parsing and stringify-ing data when endpoint contentType is not `application/json`'
     );
 
-    resultSpy.reset();
-    sinon.stub(_, 'isPlainObject').returns(false);
-    testEndpoint.contentType = 'application/json';
-
-    Middleware.parseData(testEndpoint, params);
-
-    assert.ok(
-        stringifySpy.callCount === 0 && resultSpy.callCount === 1,
-        'Not parsing and stringify-ing data when it\'s not an object'
-    );
-
-
     JSON.stringify.restore();
     utils.result.restore();
-    _.isPlainObject.restore();
 
     assert.end();
 
@@ -319,6 +306,45 @@ test('`middleware basic usage`', (assert) => {
 
 });
 
+test('`allows array as JSON results`', (assert) => {
+
+    const users = [{
+        name: 'John'
+    }, {
+        name: 'Jane'
+    }];
+
+    const options = {
+        endpoints: [
+            {
+                path: '/api/v1/users',
+                template: users
+            }
+        ]
+    };
+
+    const inst = new Middleware(options);
+
+    const res = createRes();
+    const next = sinon.spy();
+
+    const expected = JSON.stringify(users, null, 2);
+
+    inst.use({
+        url: '/api/v1/users',
+        method: 'GET'
+    }, res, next);
+
+
+    assert.equal(
+        res.end.getCall(0).args[0],
+        expected,
+        'Returns a stringified array'
+    );
+
+    assert.end();
+});
+
 
 
 test('`middleware not matching fallback`', (assert) => {
@@ -373,7 +399,6 @@ test('`middleware delayed results`', (assert) => {
     const res = createRes();
     const next = sinon.spy();
 
-    //never match
     sinon.stub(inst, 'getEndPoint').returns(createEndpoint(textEndpointDelay));
     const clock = sinon.useFakeTimers();
 
