@@ -1,6 +1,6 @@
 {
   "name": "connect-mock-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fake API server and middleware for connect and express",
   "author": "Marco Solazzi",
   "license": "MIT",
