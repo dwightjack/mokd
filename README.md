@@ -12,7 +12,7 @@ npm install connect-mock-api --save
 
 ```js
 const express = require('express');
-const mockApiMiddleware = require('mock-api').middleware;
+const mockApiMiddleware = require('connect-mock-api').middleware;
 
 const app = express();
 
@@ -32,18 +32,48 @@ app.listen(8000);
 Endpoints are objects with the following properties:
  
 * `method` (`string`): The expected methods of the incoming request (default: `GET`),
-* `path` (`string|function`): the path to match relative to the root URL. If a function it must return a string (default: `null`),
+* `path` (`string|regexp|function`): the path to match relative to the root URL. If a function it must return a string or a regular expression (default: `null`),
 * `delay` (`number|function`): force a delay in milliseconds for the response. If a function it must return a number (default: `0`),
 * `contentType` (`string`): Response content type (default: `application/json`),
 * `template` (`*|function`): Response body template. Could be any type of content in relation to the `ContentType` parameter. 
 If a function it will be executed with a `params` object and the `endpoint` itself as arguments. (default: `null`)
 
-_Note:_ The `params` object contains two property:
+_Note:_ The `params` object contains 3 properties:
 
 * `$req`: the original express / connect request object
 * `$parsedUrl`: The request URL parsed by NodeJS native `url.parse` method
-* `$routeMatch`: either a boolean (when `path` is a string) or an array of matched segments (when `path` is a regular expression)
+* `$routeMatch`: either an object (when `path` is a string) or an array of matched segments (when `path` is a regular expression). See below for details.
 
+
+### Path Matching Formats and `$routeMatch`
+
+Endpoint's `path` configuration could be a plain string, a regular expression or a string with Express-like parameters (see [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) for details).   
+`$routeMatch` format will vary based on the provided `path`:
+
+* regular expression: `$routeMatch` will be the resulting array of calling `RegExp.prototype.exec` on it
+* string or Express-like route: `$routeMatch` will be and object with named parameters as keys. Note that even numeric parameters will be strings.
+Examples:
+ 
+```js
+/* Plain string */
+{
+    
+    path: '/api/v1/users'
+    // /api/v1/users/ -> $routeMatch === {}
+}
+
+/* Express-like path */
+{
+    path: '/api/v1/users/:id'
+    // /api/v1/users/10 -> $routeMatch === {id: '10'}
+}
+
+/* RegExp */
+{
+    path: /^\/api\/v1\/users\/(\d+)$/
+    // /api/v1/users/10 -> $routeMatch === ['/api/v1/users/10', '10']
+}
+```
 
 ### Endpoint response template
 
@@ -75,7 +105,7 @@ const enpoint = {
 
 ```js
 
-const chance = require('mock-api/lib/utils').chance;
+const chance = require('connect-mock-api/lib/utils').chance;
 
 const enpoint = {
     path: '/api/v1/user',
@@ -90,7 +120,7 @@ const enpoint = {
 
 ```js
 
-const chance = require('mock-api/lib/utils').chance;
+const chance = require('connect-mock-api/lib/utils').chance;
 
 const enpoint = {
     //matches either a male of female user request
@@ -111,14 +141,14 @@ const enpoint = {
 
 ```js
 
-const chance = require('mock-api/lib/utils').chance;
+const chance = require('connect-mock-api/lib/utils').chance;
 
 const enpoint = {
-    path: /\/api\/v1\/([a-z]+)$/,
+    path: '/api/v1/:frag',
     template: (params) => {
         //calling /api/v1/user
-        //params.$routeMatch === ["/api/v1/user", "user"]
-        if (params.$routeMatch[1] === 'user') {
+        //params.$routeMatch === {'frag': 'user'}
+        if (params.$routeMatch.frag === 'user') {
             return {
                 name: () => chance.first(),
                 surname: () => chance.last()
