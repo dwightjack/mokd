@@ -1,5 +1,6 @@
 const test = require('tape');
 const sinon = require('sinon');
+const _ = require('lodash');
 
 const utils = require('../lib/utils');
 
@@ -45,6 +46,20 @@ test('`.createEndpoint()`', (assert) => {
         'Extends base template by retaining default properties'
     );
 
+    const regexpTest = utils.createEndpoint({ path: '/users/:id' });
+
+    assert.equal(
+        _.isRegExp(regexpTest.path),
+        true,
+        'Converts string paths to a regular Expression'
+    );
+
+    assert.equal(
+        Array.isArray(regexpTest._keys), //eslint-disable-line
+        true,
+        'Adds a `_keys` array property for string paths params parsing'
+    );
+
     assert.end();
 
 
@@ -53,17 +68,32 @@ test('`.createEndpoint()`', (assert) => {
 
 test('`.routeMatch()`', (assert) => {
 
+    const regExp = new RegExp('test');
+    const regExpSpy = sinon.stub(regExp, 'exec').returns(true);
+
 
     assert.equal(
         utils.routeMatch('test', 'test'),
-        true,
-        'Matches string patterns'
+        false,
+        'Fails when the match pattern is not a RegExp'
     );
 
     assert.equal(
-        utils.routeMatch('failing', 'test'),
+        utils.routeMatch(null, 'test'),
         false,
-        'Fails as expected'
+        'Fails (again) when the match pattern is not a RegExp'
+    );
+
+    assert.equal(
+        utils.routeMatch(regExp, 'test'),
+        true,
+        'Matches regular expressions'
+    );
+
+    assert.equal(
+        regExpSpy.calledWith('test'),
+        true,
+        'Calls the .exec methods of the regexp'
     );
 
     assert.equal(
@@ -73,9 +103,15 @@ test('`.routeMatch()`', (assert) => {
     );
 
     assert.equal(
-        utils.routeMatch(/^[a-z]$/, 'te1st'),
+        utils.routeMatch(/^[a-z]+$/, 'te1st'),
         null,
         'Fails as expected with regular expressions too'
+    );
+
+    assert.equal(
+        utils.routeMatch('/test/', null),
+        false,
+        'Fails when match target is not a string'
     );
 
     assert.end();

@@ -16,6 +16,22 @@ const textEndpoint = {
     }
 };
 
+const paramEndpoint = {
+    path: '/api/v1/user/:id',
+    template: {
+        name: 'John',
+        surname: 'Doe'
+    }
+};
+
+const regExpEndpoint = {
+    path: /\/api\/v1\/(.+)/,
+    template: {
+        name: 'John',
+        surname: 'Doe'
+    }
+};
+
 const textEndpointDelay = {
     path: '/api/v1/user',
     template: {
@@ -113,7 +129,7 @@ test('`Middleware.parseData`', (assert) => {
 
 
 
-test('`Middleware#getEndPoint`', (assert) => {
+test('`Middleware#getEndPoint` basic', (assert) => {
 
     const options = {
         endpoints: [
@@ -128,14 +144,14 @@ test('`Middleware#getEndPoint`', (assert) => {
     const inst = new Middleware(options);
 
     const resultSpy = sinon.spy(utils, 'result');
-    const routeMatchStub = sinon.stub(utils, 'routeMatch').returns(true);
+    const routeMatchStub = sinon.stub(utils, 'routeMatch').returns([]);
 
     const testParams = {
         $req: {
             method: 'GET'
         },
         $parsedUrl: {
-            path: '/api/v1/user'
+            pathname: '/api/v1/user'
         }
     };
 
@@ -148,12 +164,12 @@ test('`Middleware#getEndPoint`', (assert) => {
     );
 
     assert.ok(
-        routeMatchStub.calledWithExactly(inst.endpoints[0].path, params.$parsedUrl.path),
+        routeMatchStub.calledWithExactly(inst.endpoints[0].path, params.$parsedUrl.pathname),
         'Matches the endpoint path with the parsed URL path'
     );
 
     assert.equal(
-        params.$routeMatch,
+        Array.isArray(params.$routeMatch),
         true,
         'Adds a `$routeMatch` param value with route matching result'
     );
@@ -189,6 +205,58 @@ test('`Middleware#getEndPoint`', (assert) => {
 
     utils.routeMatch.restore();
     utils.result.restore();
+
+    assert.end();
+
+});
+
+test('`Middleware#getEndPoint` parameters and regexps', (assert) => {
+
+    const options = {
+        endpoints: [
+            paramEndpoint,
+            regExpEndpoint
+        ]
+    };
+
+    const _ = require('lodash');
+
+    const inst = new Middleware(options);
+
+    const testParams = {
+        $req: {
+            method: 'GET'
+        },
+        $parsedUrl: {
+            pathname: '/api/v1/user'
+        }
+    };
+
+    const params = _.clone(testParams);
+    params.$parsedUrl.pathname = '/api/v1/user/10';
+    inst.getEndPoint(params);
+
+    assert.deepEqual(
+        params.$routeMatch,
+        { id: '10' },
+        'With parameters URLs, populates $routeMatch with named params'
+    );
+
+    const params2 = _.clone(testParams);
+    params2.$parsedUrl.pathname = '/api/v1/something';
+    inst.getEndPoint(params2);
+
+    assert.equal(
+        Array.isArray(params2.$routeMatch),
+        true,
+        'With regexp returns an array'
+    );
+
+    assert.equal(
+        params2.$routeMatch[1],
+        'something',
+        'With regexp returns the result of `RegExp.prototype.exec`'
+    );
 
     assert.end();
 
