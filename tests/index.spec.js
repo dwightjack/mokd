@@ -265,17 +265,17 @@ test('`Middleware#getEndPoint` parameters and regexps', (assert) => {
 
 test('`Middleware instance`', (assert) => {
 
+    const _ = require('lodash');
     const options = {
         endpoints: [
             textEndpoint,
             dynamicTemplateEnpoint
         ]
     };
+    const expected = _.defaults(options, Middleware.defaults);
 
-    const _ = require('lodash');
     const utils = require('../lib/utils');
 
-    const defaultSpy = sinon.spy(_, 'defaults');
     const createEndpointSpy = sinon.spy(utils, 'createEndpoint');
 
     const inst = new Middleware(options);
@@ -285,8 +285,9 @@ test('`Middleware instance`', (assert) => {
         'Returns a Middleware instance'
     );
 
-    assert.ok(
-        defaultSpy.calledWithExactly(options, Middleware.defaults),
+    assert.equal(
+        inst.opts,
+        expected,
         'Extends the passed-in options with defaults'
     );
 
@@ -299,6 +300,12 @@ test('`Middleware instance`', (assert) => {
         createEndpointSpy.getCall(0).args[0],
         textEndpoint,
         'Calls `createEndpoint` with the passed-in endpoint'
+    );
+
+    assert.deepEqual(
+        createEndpointSpy.getCall(0).args[1],
+        inst.opts,
+        'Calls `createEndpoint` with options'
     );
 
     assert.ok(
@@ -316,7 +323,6 @@ test('`Middleware instance`', (assert) => {
         'Exposes a function to be used as connect / express middleware'
     );
 
-    _.defaults.restore();
     utils.createEndpoint.restore();
     assert.end();
 

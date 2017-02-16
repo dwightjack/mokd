@@ -1,6 +1,7 @@
 const test = require('tape');
 const sinon = require('sinon');
 const _ = require('lodash');
+const pathToRegexp = require('path-to-regexp');
 
 const utils = require('../lib/utils');
 
@@ -58,6 +59,22 @@ test('`.createEndpoint()`', (assert) => {
         Array.isArray(regexpTest._keys), //eslint-disable-line
         true,
         'Adds a `_keys` array property for string paths params parsing'
+    );
+
+    const baseUrlTest = utils.createEndpoint({ path: 'users/:id' }, { baseUrl: '/api/' });
+
+    assert.equal(
+        baseUrlTest.path.toString(),
+        pathToRegexp('/api/users/:id').toString(),
+        'Appends a base URL'
+    );
+
+    const baseUrlSkipTest = utils.createEndpoint({ path: '/users/:id' }, { baseUrl: '/api/' });
+
+    assert.equal(
+        baseUrlSkipTest.path.toString(),
+        pathToRegexp('/users/:id').toString(),
+        'NOT Appending base URL when path begins with `/`'
     );
 
     assert.end();
