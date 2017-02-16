@@ -17,7 +17,7 @@ const mockApiMiddleware = require('connect-mock-api').middleware;
 const app = express();
 
 const mocks = mockApiMiddleware({
-    baseURL: '', //optional
+    baseUrl: '', //optional
     endpoints: [
         //... endpoints configuration object here, see below
     ]
@@ -89,11 +89,11 @@ _Note:_ The `params` object contains two property:
 
 ### Endpoint Base URL
 
-The `baseURL` configuration option sets up a base URL for every relative endpoint path provided. To override the base URL use absolute URLs.
+The `baseUrl` configuration option sets up a base URL for every relative endpoint path provided. To override the base URL use absolute URLs.
 
 ```js
 const mocks = mockApiMiddleware({
-    baseURL: '/api/v1/', //optional
+    baseUrl: '/api/v1/', //optional
     endpoints: [
         {
             // this endpoint will respond at /api/v1/users
