@@ -4,7 +4,7 @@ const fs = require('fs');
 module.exports = (chance) => { //eslint-disable-line arrow-body-style
 
     return [{
-        path: '/api/users/:id',
+        path: 'users/:id',
         template: (params) => {
             /**
              * Example template: use a static JSON as data base and add dynamic properties
@@ -15,7 +15,7 @@ module.exports = (chance) => { //eslint-disable-line arrow-body-style
             };
         }
     }, {
-        path: '/api/number/',
+        path: 'number/',
         template: {
             /**
              * Just dynamic data
@@ -23,7 +23,7 @@ module.exports = (chance) => { //eslint-disable-line arrow-body-style
             number: () => chance.natural()
         }
     }, {
-        path: '/api/list',
+        path: '/list',
         template: [{
             name: 'John'
         }, {
