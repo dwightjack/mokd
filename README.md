@@ -91,6 +91,8 @@ _Note:_ The `params` object contains two property:
 
 The `baseUrl` configuration option sets up a base URL for every relative endpoint path provided. To override the base URL use absolute URLs.
 
+*Note: `baseUrl` applies just to string paths.*
+ 
 ```js
 const mocks = mockApiMiddleware({
     baseUrl: '/api/v1/', //optional
