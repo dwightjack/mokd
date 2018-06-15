@@ -29,8 +29,8 @@ test('`.createEndpoint()`', (assert) => {
 
     assert.deepEqual(
         utils.createEndpoint(),
-        utils.baseTemplate,
-        'By default returns a copy of the base template'
+        utils.baseResponse,
+        'By default returns a copy of the base response'
     );
 
     const endpoint = utils.createEndpoint({ method: 'POST' });
@@ -38,13 +38,13 @@ test('`.createEndpoint()`', (assert) => {
     assert.equal(
         endpoint.method,
         'POST',
-        'Extends base template'
+        'Extends base response'
     );
 
     assert.equal(
         endpoint.contentType,
-        utils.baseTemplate.contentType,
-        'Extends base template by retaining default properties'
+        utils.baseResponse.contentType,
+        'Extends base response by retaining default properties'
     );
 
     const regexpTest = utils.createEndpoint({ path: '/users/:id' });

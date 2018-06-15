@@ -100,13 +100,13 @@ const mocks = mockApiMiddleware({
         {
             // this endpoint will respond at /api/v1/users
             path: 'users',
-            template: {
+            response: {
                 // ...
             }
         }, {
             // this endpoint will respond at /custom/path
             path: '/custom/path',
-            template: {
+            response: {
                 // ...
             }
         }
@@ -121,7 +121,7 @@ const mocks = mockApiMiddleware({
 ```js
 const endpoint = {
     path: '/api/v1/user',
-    template: {
+    response: {
         name: 'John',
         surname: 'Doe'
     }

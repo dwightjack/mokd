@@ -8,7 +8,7 @@ const createRes = () => ({
 
 const textEndpoint = {
     path: '/api/v1/user',
-    template: {
+    response: {
         name: 'John',
         surname: 'Doe'
     }
@@ -16,7 +16,7 @@ const textEndpoint = {
 
 const paramEndpoint = {
     path: '/api/v1/user/:id',
-    template: {
+    response: {
         name: 'John',
         surname: 'Doe'
     }
@@ -24,7 +24,7 @@ const paramEndpoint = {
 
 const regExpEndpoint = {
     path: /\/api\/v1\/(.+)/,
-    template: {
+    response: {
         name: 'John',
         surname: 'Doe'
     }
@@ -32,7 +32,7 @@ const regExpEndpoint = {
 
 const textEndpointDelay = {
     path: '/api/v1/user',
-    template: {
+    response: {
         name: 'John',
         surname: 'Doe'
     },
@@ -40,9 +40,9 @@ const textEndpointDelay = {
 };
 
 
-const dynamicTemplateEnpoint = {
+const dynamicResponseEnpoint = {
     path: () => '/api/v1/dyn-user',
-    template: {
+    response: {
         name: () => 'John',
         surname: () => 'Doe'
     }
@@ -83,19 +83,19 @@ test('`Middleware.parseData`', (assert) => {
 
     assert.deepEqual(
         resultSpy.getCall(0).args,
-        [testEndpoint.template, params, testEndpoint],
-        'Resolves the template with `utils.result`'
+        [testEndpoint.response, params, testEndpoint],
+        'Resolves the response with `utils.result`'
     );
 
     assert.ok(
         resultSpy.getCall(0).returned(sinon.match.object),
-        'Returns an object whenever the template is an object'
+        'Returns an object whenever the response is an object'
     );
 
     assert.equal(
-        Object.keys(textEndpoint.template).length,
+        Object.keys(textEndpoint.response).length,
         resultSpy.callCount - 1,
-        'Calls `utils.result` on every key of the template'
+        'Calls `utils.result` on every key of the response'
     );
 
     assert.equal(
@@ -134,7 +134,7 @@ test('`Middleware#getEndPoint` basic', (assert) => {
     const options = {
         endpoints: [
             textEndpoint,
-            dynamicTemplateEnpoint
+            dynamicResponseEnpoint
         ]
     };
 
@@ -273,7 +273,7 @@ test('`Middleware instance`', (assert) => {
     const options = {
         endpoints: [
             textEndpoint,
-            dynamicTemplateEnpoint
+            dynamicResponseEnpoint
         ]
     };
 
@@ -346,7 +346,7 @@ test('`middleware basic usage`', (assert) => {
     const inst = new Middleware(options);
 
     const createEndpoint = require('../lib/utils').createEndpoint;
-    const baseTemplate = require('../lib/utils').baseTemplate;
+    const { baseResponse } = require('../lib/utils');
 
     const res = createRes();
     const next = sinon.spy();
@@ -370,7 +370,7 @@ test('`middleware basic usage`', (assert) => {
 
     assert.deepEqual(
         res.setHeader.getCall(0).args,
-        ['Content-Type', baseTemplate.contentType],
+        ['Content-Type', baseResponse.contentType],
         'Sets response content-type'
     );
 
@@ -398,7 +398,7 @@ test('`allows array as JSON results`', (assert) => {
         endpoints: [
             {
                 path: '/api/v1/users',
-                template: users
+                response: users
             }
         ]
     };
