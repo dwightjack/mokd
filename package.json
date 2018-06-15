@@ -4,10 +4,11 @@
   "description": "Fake API server and middleware for connect and express",
   "author": "Marco Solazzi",
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "./index.js",
   "files": [
     "lib",
-    "bin"
+    "bin",
+    "index.js"
   ],
   "scripts": {
     "test": "tape tests/**/*.spec.js | tap-spec",
