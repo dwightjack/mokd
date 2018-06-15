@@ -30,16 +30,6 @@ const regExpEndpoint = {
     }
 };
 
-const textEndpointDelay = {
-    path: '/api/v1/user',
-    response: {
-        name: 'John',
-        surname: 'Doe'
-    },
-    delay: 1000
-};
-
-
 const dynamicResponseEnpoint = {
     path: () => '/api/v1/dyn-user',
     response: {
@@ -48,9 +38,79 @@ const dynamicResponseEnpoint = {
     }
 };
 
+test('`Server#getData`', (assert) => {
+  const utils = require('../lib/utils');
 
+  const resultSpy = sinon.stub(utils, 'result');
+  const fakeTransform = sinon.stub();
+  const fakeEmptyTransform = sinon.stub();
+  const data = {};
+  const expected = {};
+  const testParams = {
+    $req: {
+        method: 'GET'
+    },
+    $parsedUrl: {
+        path: '/api/v1/user'
+    }
+  };
 
-test('`Middleware.parseData`', (assert) => {
+  resultSpy.returns(data);
+  fakeTransform.returns(expected)
+  fakeEmptyTransform.returns(undefined);
+
+  const { Server } = uncached('../lib/server');
+  const inst = new Server({
+    transforms: [fakeTransform]
+  });
+
+  const output = inst.getData(textEndpoint, testParams);
+
+  assert.deepEqual(
+    resultSpy.getCall(0).args,
+    [textEndpoint.response, testParams, textEndpoint],
+    'Resolves the response data `utils.result`'
+  );
+
+  assert.ok(
+    fakeTransform.calledWithExactly(data, textEndpoint, testParams),
+    'transformer is called with computed data, the endpoint and the request params'
+  );
+
+  assert.equal(
+    output,
+    expected,
+    'Returns the result of the first non-undefined transform'
+  );
+
+  inst.options.transforms.push(fakeEmptyTransform);
+  inst.getData(textEndpoint, testParams);
+
+  assert.equal(
+    fakeEmptyTransform.callCount,
+    0,
+    'When a transform returns a value, successive transforms are not called'
+  );
+
+  fakeEmptyTransform.resetHistory();
+  fakeTransform.resetHistory();
+
+  inst.options.transforms = [fakeEmptyTransform, fakeTransform];
+  inst.getData(textEndpoint, testParams);
+
+  assert.equal(
+    fakeEmptyTransform.callCount + fakeTransform.callCount,
+    2,
+    'When a transform returns undefined executes the next one'
+  );
+
+  utils.result.restore();
+  assert.end();
+
+});
+
+/*
+test('`Server#getData`', (assert) => {
 
     const _ = require('lodash');
     const utils = require('../lib/utils');
@@ -58,7 +118,7 @@ test('`Middleware.parseData`', (assert) => {
     const resultSpy = sinon.spy(utils, 'result');
     const stringifySpy = sinon.spy(JSON, 'stringify');
 
-    const { Middleware } = uncached('../lib/index');
+    const { Server } = uncached('../lib/server');
 
     const testParams = {
         $req: {
@@ -74,7 +134,7 @@ test('`Middleware.parseData`', (assert) => {
     }, textEndpoint);
 
     const params = _.clone(testParams);
-    const data = Middleware.parseData(testEndpoint, params);
+    const data = Server.parseData(testEndpoint, params);
 
     assert.ok(
         typeof data === 'string',
@@ -113,7 +173,7 @@ test('`Middleware.parseData`', (assert) => {
     //response type is not JSON
 
     testEndpoint.contentType = 'text/html';
-    Middleware.parseData(testEndpoint, params);
+    Server.parseData(testEndpoint, params);
 
     assert.ok(
         stringifySpy.callCount === 0 && resultSpy.callCount === 1,
@@ -127,9 +187,9 @@ test('`Middleware.parseData`', (assert) => {
 
 });
 
+*/
 
-
-test('`Middleware#getEndPoint` basic', (assert) => {
+test('`Server#getEndPoint` basic', (assert) => {
 
     const options = {
         endpoints: [
@@ -144,9 +204,9 @@ test('`Middleware#getEndPoint` basic', (assert) => {
     const resultSpy = sinon.spy(utils, 'result');
     const routeMatchStub = sinon.stub(utils, 'routeMatch').returns([]);
 
-    const { Middleware } = uncached('../lib/index');
+    const { Server } = uncached('../lib/server');
 
-    const inst = new Middleware(options);
+    const inst = new Server(options);
 
     const testParams = {
         $req: {
@@ -212,7 +272,7 @@ test('`Middleware#getEndPoint` basic', (assert) => {
 
 });
 
-test('`Middleware#getEndPoint` parameters and regexps', (assert) => {
+test('`Server#getEndPoint` parameters and regexps', (assert) => {
 
     const options = {
         endpoints: [
@@ -223,9 +283,9 @@ test('`Middleware#getEndPoint` parameters and regexps', (assert) => {
 
     const _ = require('lodash');
 
-    const { Middleware } = uncached('../lib/index');
+    const { Server } = uncached('../lib/server');
 
-    const inst = new Middleware(options);
+    const inst = new Server(options);
 
     const testParams = {
         $req: {
@@ -267,7 +327,7 @@ test('`Middleware#getEndPoint` parameters and regexps', (assert) => {
 });
 
 
-test('`Middleware instance`', (assert) => {
+test('`Server instance`', (assert) => {
 
     const _ = require('lodash');
     const options = {
@@ -280,13 +340,13 @@ test('`Middleware instance`', (assert) => {
     const utils = require('../lib/utils');
     const createEndpointSpy = sinon.spy(utils, 'createEndpoint');
 
-    const { Middleware } = uncached('../lib/index');
-    const inst = new Middleware(options);
-    const expected = _.defaults(options, Middleware.defaults);
+    const { Server } = uncached('../lib/server');
+    const inst = new Server(options);
+    const expected = _.defaults(options, Server.defaults);
 
     assert.ok(
-        inst instanceof Middleware,
-        'Returns a Middleware instance'
+        inst instanceof Server,
+        'Returns a Server instance'
     );
 
     assert.deepEqual(
@@ -341,9 +401,9 @@ test('`middleware basic usage`', (assert) => {
         ]
     };
 
-    const { Middleware } = uncached('../lib/index');
+    const { Server } = uncached('../lib/server');
 
-    const inst = new Middleware(options);
+    const inst = new Server(options);
 
     const createEndpoint = require('../lib/utils').createEndpoint;
     const { baseResponse } = require('../lib/utils');
@@ -356,7 +416,7 @@ test('`middleware basic usage`', (assert) => {
     });
     //always match
     sinon.stub(inst, 'getEndPoint').returns(createEndpoint(textEndpoint));
-    sinon.stub(Middleware, 'parseData').returns(expectedData);
+    sinon.stub(Server, 'parseData').returns(expectedData);
 
     inst.use({
         url: ''
@@ -380,7 +440,7 @@ test('`middleware basic usage`', (assert) => {
         'Calls response end with parsed data'
     );
 
-    Middleware.parseData.restore();
+    Server.parseData.restore();
 
     assert.end();
 
@@ -403,8 +463,8 @@ test('`allows array as JSON results`', (assert) => {
         ]
     };
 
-    const { Middleware } = uncached('../lib/index');
-    const inst = new Middleware(options);
+    const { Server } = uncached('../lib/server');
+    const inst = new Server(options);
 
     const res = createRes();
     const next = sinon.spy();
@@ -427,108 +487,3 @@ test('`allows array as JSON results`', (assert) => {
 });
 
 
-
-test('`middleware not matching fallback`', async (assert) => {
-
-    const options = {
-        endpoints: [
-            textEndpoint
-        ]
-    };
-
-    const { Middleware } = uncached('../lib/index');
-    const inst = new Middleware(options);
-
-    const res = createRes();
-    const next = sinon.spy();
-
-    //never match
-    sinon.stub(inst, 'getEndPoint').returns(undefined);
-
-    await inst.use({
-        url: ''
-    }, res, next);
-
-    assert.equal(
-        next.callCount,
-        1,
-        'fallback to next middleware when no endpoint matches'
-    );
-
-    assert.equals(
-        res.end.callCount,
-        0,
-        'Doesn\'t output anything'
-    );
-
-    assert.end();
-
-});
-
-
-test('`middleware delayed results`', (assert) => {
-
-    const createEndpoint = require('../lib/utils').createEndpoint;
-
-    const options = {
-        endpoints: [
-            textEndpointDelay
-        ]
-    };
-
-    const { Middleware } = uncached('../lib/index');
-    const inst = new Middleware(options);
-
-    const res = createRes();
-    const next = sinon.spy();
-
-    sinon.stub(inst, 'getEndPoint').returns(createEndpoint(textEndpointDelay));
-    const clock = sinon.useFakeTimers();
-
-    inst.use({
-        url: ''
-    }, res, next).then(() => {
-      assert.equal(
-          res.end.callCount,
-          1,
-          'Called after the delay period'
-      );
-
-      clock.restore();
-
-      assert.end();
-    });
-
-    assert.equal(
-        res.end.callCount,
-        0,
-        'Not called right away'
-    );
-
-    clock.tick(textEndpointDelay.delay);
-
-
-
-});
-
-
-test('middleware utility function', (assert) => {
-
-    const middleware = require('../lib/index').middleware;
-
-    const options = {
-        endpoints: [
-            textEndpointDelay
-        ]
-    };
-
-    const use = middleware(options);
-
-    assert.ok(
-        typeof use === 'function',
-        'Returns a middleware function'
-    );
-
-    assert.end();
-
-});
