@@ -35,7 +35,6 @@
   },
   "homepage": "https://github.com/dwightjack/connect-mock-api",
   "dependencies": {
-    "chance": "1.0.4",
     "lodash": "4.17.10",
     "path-to-regexp": "2.2.1",
     "tape-async": "~2.3.0",

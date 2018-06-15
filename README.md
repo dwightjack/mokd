@@ -133,7 +133,7 @@ const endpoint = {
 
 ```js
 
-const chance = require('connect-mock-api/lib/utils').chance;
+const chance = require('chance').Chance();
 
 const endpoint = {
     path: '/api/v1/user',
@@ -148,7 +148,7 @@ const endpoint = {
 
 ```js
 
-const chance = require('connect-mock-api/lib/utils').chance;
+const chance = require('chance').Chance();
 
 const endpoint = {
     //matches either a male of female user request
@@ -169,7 +169,7 @@ const endpoint = {
 
 ```js
 
-const chance = require('connect-mock-api/lib/utils').chance;
+const chance = require('chance').Chance();
 
 const endpoint = {
     path: '/api/v1/:frag',
