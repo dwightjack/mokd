@@ -31,12 +31,12 @@ app.listen(8000);
 ### Endpoint Configuration
 
 Endpoints are objects with the following properties:
- 
+
 * `method` (`string`): The expected methods of the incoming request (default: `GET`),
 * `path` (`string|regexp|function`): the path to match relative to the root URL. If a function it must return a string or a regular expression (default: `null`),
 * `delay` (`number|function`): force a delay in milliseconds for the response. If a function it must return a number (default: `0`),
 * `contentType` (`string`): Response content type (default: `application/json`),
-* `template` (`*|function`): Response body template. Could be any type of content in relation to the `ContentType` parameter. 
+* `template` (`*|function`): Response body template. Could be any type of content in relation to the `ContentType` parameter.
 If a function it will be executed with a `params` object and the `endpoint` itself as arguments. (default: `null`)
 
 _Note:_ The `params` object contains 3 properties:
@@ -48,17 +48,17 @@ _Note:_ The `params` object contains 3 properties:
 
 ### Path Matching Formats and `$routeMatch`
 
-Endpoint's `path` configuration could be a plain string, a regular expression or a string with Express-like parameters (see [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) for details).   
+Endpoint's `path` configuration could be a plain string, a regular expression or a string with Express-like parameters (see [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) for details).
 `$routeMatch` format will vary based on the provided `path`:
 
 * regular expression: `$routeMatch` will be the resulting array of calling `RegExp.prototype.exec` on it
 * string or Express-like route: `$routeMatch` will be and object with named parameters as keys. Note that even numeric parameters will be strings.
 Examples:
- 
+
 ```js
 /* Plain string */
 {
-    
+
     path: '/api/v1/users'
     // /api/v1/users/ -> $routeMatch === {}
 }
@@ -92,7 +92,7 @@ _Note:_ The `params` object contains two property:
 The `baseUrl` configuration option sets up a base URL for every relative endpoint path provided. To override the base URL use absolute URLs.
 
 *Note: `baseUrl` applies just to string paths.*
- 
+
 ```js
 const mocks = mockApiMiddleware({
     baseUrl: '/api/v1/', //optional
@@ -119,7 +119,7 @@ const mocks = mockApiMiddleware({
 1) A basic GET endpoint returning a JSON object
 
 ```js
-const enpoint = {
+const endpoint = {
     path: '/api/v1/user',
     template: {
         name: 'John',
@@ -135,7 +135,7 @@ const enpoint = {
 
 const chance = require('connect-mock-api/lib/utils').chance;
 
-const enpoint = {
+const endpoint = {
     path: '/api/v1/user',
     template: {
         name: () => chance.first(),
@@ -150,14 +150,14 @@ const enpoint = {
 
 const chance = require('connect-mock-api/lib/utils').chance;
 
-const enpoint = {
+const endpoint = {
     //matches either a male of female user request
     path: /\/api\/v1\/user\/(male|female)$/,
     template: {
-        name: (params) => chance.first({ 
+        name: (params) => chance.first({
             gender: params.$routeMatch[1]
         }),
-        surname: (params) => chance.last({ 
+        surname: (params) => chance.last({
             gender: params.$routeMatch[1]
         })
     }
@@ -171,7 +171,7 @@ const enpoint = {
 
 const chance = require('connect-mock-api/lib/utils').chance;
 
-const enpoint = {
+const endpoint = {
     path: '/api/v1/:frag',
     template: (params) => {
         //calling /api/v1/user
@@ -182,11 +182,11 @@ const enpoint = {
                 surname: () => chance.last()
             };
         }
-        
+
         return {
             error: 'Not matching anything'
         };
-        
+
     }
 };
 ```
@@ -195,11 +195,11 @@ const enpoint = {
 5) A POST endpoint, accepting a body request and returning a success message
 
 _Note:_ to parse the request body you should append [body-parser](https://github.com/expressjs/body-parser) middleware
- to the express / connect middleware list. 
+ to the express / connect middleware list.
 
 ```js
 
-const enpoint = {
+const endpoint = {
     path: '/api/v1/send',
     method: 'POST',
     template: (params) => {
@@ -209,17 +209,17 @@ const enpoint = {
                 msg: 'You must provide a username and a password'
             };
         }
-        
+
         return {
             success: true,
             msg: 'Succesfully logged in!'
         };
-        
-        
+
+
     }
 };
 ```
- 
+
 
 ## Contributing
 
