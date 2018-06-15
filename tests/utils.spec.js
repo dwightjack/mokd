@@ -29,8 +29,8 @@ test('`.createEndpoint()`', (assert) => {
 
     assert.deepEqual(
         utils.createEndpoint(),
-        utils.baseTemplate,
-        'By default returns a copy of the base template'
+        utils.baseResponse,
+        'By default returns a copy of the base response'
     );
 
     const endpoint = utils.createEndpoint({ method: 'POST' });
@@ -38,13 +38,13 @@ test('`.createEndpoint()`', (assert) => {
     assert.equal(
         endpoint.method,
         'POST',
-        'Extends base template'
+        'Extends base response'
     );
 
     assert.equal(
         endpoint.contentType,
-        utils.baseTemplate.contentType,
-        'Extends base template by retaining default properties'
+        utils.baseResponse.contentType,
+        'Extends base response by retaining default properties'
     );
 
     const regexpTest = utils.createEndpoint({ path: '/users/:id' });
@@ -134,72 +134,3 @@ test('`.routeMatch()`', (assert) => {
     assert.end();
 
 });
-
-
-test('`.readFile()`', (assert) => {
-
-    const fs = require('fs');
-
-    const fakeContent = 'fake content';
-    const existsSyncStub = sinon.stub(fs, 'existsSync');
-    const readFileSyncStub = sinon.stub(fs, 'readFileSync');
-
-
-    readFileSyncStub.returns(fakeContent);
-
-
-    assert.notOk(
-        utils.readFile(null),
-        'Fails when no path is passed in'
-    );
-
-    existsSyncStub.returns(false);
-
-    assert.notOk(
-        utils.readFile('/my/path'),
-        'Fails when filepaht is not found'
-    );
-
-    existsSyncStub.returns(true);
-
-
-    assert.equal(
-        utils.readFile('/my/path'),
-        fakeContent,
-        'On success read the file contents and returns them'
-    );
-
-
-    fs.existsSync.restore();
-    fs.readFileSync.restore();
-
-
-    assert.end();
-
-});
-//
-//
-// test('`.readJSON()`', (assert) => {
-//
-//     const fakeJSON = {prop: 'value'};
-//     const readFileStub = sinon.stub(utils, 'readFile');
-//
-//     readFileStub.returns(JSON.stringify(fakeJSON));
-//
-//     assert.deepEqual(
-//         utils.readJSON('/path/'),
-//         fakeJSON,
-//         'Returns a parsed JSON object'
-//     );
-//
-//     assert.ok(
-//         readFileStub.callCount,
-//         1,
-//         'Proxies to `.readFile` to retrieve file contents'
-//     );
-//
-//     utils.readFile.restore();
-//
-//     assert.end();
-//
-// });
