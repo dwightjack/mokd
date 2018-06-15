@@ -78,44 +78,13 @@ Icon
 .Trashes
 
 
-############
-### SASS
-############
-*.sass-cache
-
-
 
 ################
 ## Application
 ################
 
-var/*
 #Exclude logs
+node_modules
 log
 *.log
-
-
-
-############
-## Misc
-############
-
-*.mo
-.svn
-.phptidy-cache
-_svn
-node_modules
-etc
-assets.json
-public/*
-static/*
-public/.htaccess
-public/htaccess
-public/favicon.ico
-www/assets
-!www/.htaccess
-!www/htaccess
-!www/favicon.ico
-var/tmp
-_tmp
 yarn.lock
