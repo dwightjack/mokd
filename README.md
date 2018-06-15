@@ -36,7 +36,7 @@ Endpoints are objects with the following properties:
 * `path` (`string|regexp|function`): the path to match relative to the root URL. If a function it must return a string or a regular expression (default: `null`),
 * `delay` (`number|function`): force a delay in milliseconds for the response. If a function it must return a number (default: `0`),
 * `contentType` (`string`): Response content type (default: `application/json`),
-* `template` (`*|function`): Response body template. Could be any type of content in relation to the `ContentType` parameter.
+* `response` (`*|function`): Response body template. Could be any type of content in relation to the `ContentType` parameter.
 If a function it will be executed with a `params` object and the `endpoint` itself as arguments. (default: `null`)
 
 _Note:_ The `params` object contains 3 properties:
@@ -137,7 +137,7 @@ const chance = require('connect-mock-api/lib/utils').chance;
 
 const endpoint = {
     path: '/api/v1/user',
-    template: {
+    response: {
         name: () => chance.first(),
         surname: () => chance.last()
     }
@@ -153,7 +153,7 @@ const chance = require('connect-mock-api/lib/utils').chance;
 const endpoint = {
     //matches either a male of female user request
     path: /\/api\/v1\/user\/(male|female)$/,
-    template: {
+    response: {
         name: (params) => chance.first({
             gender: params.$routeMatch[1]
         }),
@@ -165,7 +165,7 @@ const endpoint = {
 ```
 
 
-4) A GET endpoint matching a regexp and returning a dynamic template based on the match
+4) A GET endpoint matching a regexp and returning a dynamic response based on the match
 
 ```js
 
@@ -173,7 +173,7 @@ const chance = require('connect-mock-api/lib/utils').chance;
 
 const endpoint = {
     path: '/api/v1/:frag',
-    template: (params) => {
+    response: (params) => {
         //calling /api/v1/user
         //params.$routeMatch === {'frag': 'user'}
         if (params.$routeMatch.frag === 'user') {
@@ -202,7 +202,7 @@ _Note:_ to parse the request body you should append [body-parser](https://github
 const endpoint = {
     path: '/api/v1/send',
     method: 'POST',
-    template: (params) => {
+    response: (params) => {
         if (!params.$req.body.username || !params.$req.body.password) {
             return {
                 success: false,
