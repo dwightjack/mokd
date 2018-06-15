@@ -21,7 +21,7 @@
     "middleware"
   ],
   "engines": {
-    "node": ">=6.9.0"
+    "node": ">=8.9.0"
   },
   "bin": {
     "mock-api": "./bin/index.js"
@@ -38,6 +38,7 @@
     "chance": "1.0.4",
     "lodash": "4.17.10",
     "path-to-regexp": "2.2.1",
+    "tape-async": "~2.3.0",
     "yargs": "11.0.0"
   },
   "devDependencies": {
@@ -45,6 +46,7 @@
     "eslint": "~4.19.1",
     "eslint-plugin-node": "~6.0.1",
     "nodemon": "~1.17.0",
+    "require-uncached": "~1.0.3",
     "sinon": "^6.0.0",
     "tap-spec": "^5.0.0",
     "tape": "~4.9.0"
