@@ -1,6 +1,6 @@
 ## Connect Mock API
 
-> Express / Connect middleware for programmable fake APIs
+> Programmable fake APIs server.
 
 ## Installation
 
@@ -8,24 +8,47 @@
 npm install connect-mock-api --save
 ```
 
+## Basic Usage
+
+```js
+const { Server }  = require('connect-mock-api');
+
+const server = new Server({
+    baseUrl: '', //optional
+    endpoints: [
+        {
+          path: '/user/',
+          response: {
+            id: 1
+            name: 'John Doe'
+          }
+          //... more endpoints configuration here, see below
+        }
+    ]
+});
+```
+
+By itself the server doesn't do that much. In order to do its magic it needs to be paired with a middleware
+
 ## Usage as an express/connect middleware
+
+In order to use the server with an existing connect/express application you need to use the built-in adapter.
 
 ```js
 const express = require('express');
-const mockApiMiddleware = require('connect-mock-api').middleware;
+const { Server, asConnect }  = require('connect-mock-api');
 
-const app = express();
-
-const mocks = mockApiMiddleware({
+const server = new Server({
     baseUrl: '', //optional
     endpoints: [
         //... endpoints configuration object here, see below
     ]
 });
 
-app.use(mocks);
-app.listen(8000);
+const app = express();
 
+app.use(asConnect(server));
+app.listen(8000);
 ```
 
 ### Endpoint Configuration
@@ -94,7 +117,7 @@ The `baseUrl` configuration option sets up a base URL for every relative endpoin
 *Note: `baseUrl` applies just to string paths.*
 
 ```js
-const mocks = mockApiMiddleware({
+const server = new Server({
     baseUrl: '/api/v1/', //optional
     endpoints: [
         {
