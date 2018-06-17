@@ -13,7 +13,7 @@
   "scripts": {
     "test": "tape tests/**/*.spec.js | tap-spec",
     "lint": "eslint .",
-    "start": "nodemon --watch lib lib/server.js --config=./fixtures/config.js"
+    "start": "nodemon lib/cli.js --watch lib lib/server.js --config=./demo/config.js"
   },
   "keywords": [
     "api",
