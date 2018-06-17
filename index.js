@@ -3,5 +3,5 @@ const connect = require('./lib/connect');
 
 module.exports = {
   Server,
-  connectMock: (options) => connect(new Server(options))
+  asConnect: (options) => connect(new Server(options))
 }
