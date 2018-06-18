@@ -2,6 +2,10 @@
 
 > Express / Connect middleware for programmable fake APIs
 
+## Table of Contents
+
+* [Installation](#installation)
+
 ## Installation
 
 ```
@@ -219,6 +223,53 @@ const endpoint = {
     }
 };
 ```
+
+## Development Mode
+
+During development mocked data could change frequently. Instead or restarting your application, you can instantiate a watcher that will listen for file changes and reload  endpoints automatically.
+
+```js
+
+//endpoints.js
+
+module.exports = [{
+  path: 'api/users/'
+  response {
+    // ...
+  }
+}];
+
+// server.js
+
+const { createWatcher, Server } = require('../index');
+
+const server = new Server(); // <-- don't pass endpoints here
+
+const watcher = createWatcher({
+  server,
+  entrypoint: './endpoints.js'
+  paths: ['./mocks/**/*.*'] //additional paths to watch
+});
+```
+
+### Options
+
+`createWatcher` config object accepts the following keys:
+
+* `server`: A mock server instance
+* `cwd`: (default: `process.cwd()`) The base directory from which relative paths are resolved.
+* `entrypoint`: A path to a file exposing a list of endpoints. Either absolute or relative to `cwd`
+* `paths`: A list of files or patterns to be watched for changes (See [`chokidar.watch` `path` argument](https://github.com/paulmillr/chokidar#api) for details).
+* `watchOptions`: [`chokidar.watch` options](https://github.com/paulmillr/chokidar#api). By default `ignoreInitial` is `true` and `cwd` has the same value as the `cwd` option here.
+
+### Methods
+
+`createWatcher` returned object has the following methods:
+
+* `close`: proxy to chockidar's [`close` method](https://github.com/paulmillr/chokidar#methods--events)
+* `on`: proxy to chockidar's [`on` method](https://github.com/paulmillr/chokidar#methods--events)
+* `update(clear = true)`: Loads a fresh copy of the `entrypoint` file and every watched file. To reload just the entrypoint set `clear` to `false`.
+
 
 
 ## Contributing

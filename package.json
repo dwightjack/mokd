@@ -33,8 +33,10 @@
   },
   "homepage": "https://github.com/dwightjack/connect-mock-api",
   "dependencies": {
+    "chokidar": "~2.0.3",
     "lodash": "4.17.10",
     "path-to-regexp": "2.2.1",
+    "require-uncached": "~1.0.3",
     "tape-async": "~2.3.0",
     "yargs": "11.0.0"
   },
@@ -45,7 +47,6 @@
     "eslint-plugin-node": "~6.0.1",
     "koa": "~2.5.1",
     "nodemon": "~1.17.0",
-    "require-uncached": "~1.0.3",
     "sinon": "^6.0.0",
     "tap-spec": "^5.0.0",
     "tape": "~4.9.0"
