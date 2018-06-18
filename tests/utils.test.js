@@ -5,7 +5,7 @@ const utils = require('../lib/utils');
 
 describe('Utils', () => {
 
-  describe('`result()`', () => {
+  describe('result()', () => {
     test('if first argument is NOT a function returns its value', () => {
       expect(utils.result('a', 'string')).toBe('a');
     });
@@ -19,7 +19,7 @@ describe('Utils', () => {
 
 
 
-  describe('`createEndpoint()`', () => {
+  describe('createEndpoint()', () => {
 
     test('by default returns a copy of the base response', () => {
       expect(utils.createEndpoint()).toEqual(utils.baseResponse);
@@ -60,7 +60,7 @@ describe('Utils', () => {
 
 
 
-  describe('`routeMatch()`', () => {
+  describe('routeMatch()', () => {
 
     let regExp;
 
@@ -93,6 +93,96 @@ describe('Utils', () => {
 
     test('fails when match target is not a string', () => {
       expect(utils.routeMatch('/test/', null)).toBe(false);
+    });
+
+  });
+
+  describe('delay()', () => {
+
+    test('returns a Promise', () => {
+      expect(utils.delay()).toEqual(expect.any(Promise));
+    });
+
+    test('resolve the promise after a given amout of ms', async () => {
+      expect.assertions(2);
+      const spy = jest.fn();
+      jest.useFakeTimers();
+      const promise = utils.delay().then(spy);
+      expect(spy).not.toHaveBeenCalled();
+      jest.runAllTimers();
+      await promise;
+      expect(spy).toHaveBeenCalled();
+    })
+
+  });
+
+  describe('transformText()', () => {
+    let spy
+
+    beforeEach(() => {
+      spy = {
+        toString: jest.fn(() => 'string')
+      };
+    });
+
+    test('calls ".toString" method of passed in object', () => {
+      utils.transformText(spy);
+      expect(spy.toString).toHaveBeenCalled();
+    });
+
+    test('returns the result of the ".toString" method', () => {
+      const value = utils.transformText(spy);
+      expect(value).toBe('string');
+    });
+  });
+
+  describe('transformJSON()', () => {
+
+    const endpoint = {
+      contentType: 'application/json'
+    };
+
+    test('returns "undefined" when matched endpoint contentType is NOT "application/json"', () => {
+      const result = utils.transformJSON({}, { contentType: 'text/html' });
+      expect(result).toBeUndefined()
+    });
+
+    test('JSON.stringify data and return', () => {
+      const data = {
+        name: 'John'
+      };
+
+      const array = [{
+        name: 'John'
+      }]
+      const result = utils.transformJSON(data, endpoint);
+      expect(result).toBe(JSON.stringify(data));
+
+      const resultArray = utils.transformJSON(array, endpoint);
+      expect(resultArray).toBe(JSON.stringify(array));
+    });
+
+    test('if "data" is an object iterate on keys and try to execute its values', () => {
+      const data = {
+        name: 'John',
+        surname: () => 'Doe'
+      };
+      const result = utils.transformJSON(data, endpoint);
+      const expected = JSON.stringify({ name: 'John', surname: 'Doe' });
+      expect(result).toBe(expected);
+    });
+
+    test('iterator passes "params" and "endpoint" to each value', () => {
+      const spy = jest.fn();
+      const data = {
+        name: spy,
+        surname: spy
+      };
+      const params = {};
+      utils.transformJSON(data, endpoint, params);
+
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenCalledWith(params, endpoint);
     });
 
   });
