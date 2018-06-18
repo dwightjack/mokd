@@ -6,4 +6,5 @@ module.exports = {
   Server,
   transformJSON,
   transformText,
+  connectServer: (options) => connect(new Server(options))
 }
