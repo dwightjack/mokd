@@ -1,13 +1,14 @@
 const path = require('path');
 const fs = require('fs');
+const chance = require('chance').Chance();
 
-module.exports = (chance) => { //eslint-disable-line arrow-body-style
+module.exports = () => { //eslint-disable-line arrow-body-style
 
     return [{
         path: 'users/:id',
-        template: (params) => {
+        response: (params) => {
             /**
-             * Example template: use a static JSON as data base and add dynamic properties
+             * Example response: use a static JSON as data base and add dynamic properties
              */
             const id = parseInt(params.$routeMatch.id, 10);
             return {
@@ -15,8 +16,8 @@ module.exports = (chance) => { //eslint-disable-line arrow-body-style
             };
         }
     }, {
-        path: 'number/',
-        template: {
+        path: 'number',
+        response: {
             /**
              * Just dynamic data
              */
@@ -24,7 +25,7 @@ module.exports = (chance) => { //eslint-disable-line arrow-body-style
         }
     }, {
         path: '/list',
-        template: [{
+        response: [{
             name: 'John'
         }, {
             name: 'Jane'
@@ -32,7 +33,7 @@ module.exports = (chance) => { //eslint-disable-line arrow-body-style
     }, {
         //catche all
         path: /api\/(.+)/,
-        template: (params) => {
+        response: (params) => {
             /**
              * Example template: use a static JSON as data base and add dynamic properties
              */
