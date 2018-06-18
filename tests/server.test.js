@@ -1,111 +1,105 @@
-const test = require('tape-async');
-const sinon = require('sinon');
-const uncached = require('require-uncached');
-const createRes = () => ({
-    end: sinon.spy(),
-    setHeader: sinon.spy()
-});
-
 const textEndpoint = {
-    path: '/api/v1/user',
-    response: {
-        name: 'John',
-        surname: 'Doe'
-    }
+  path: '/api/v1/user',
+  response: {
+      name: 'John',
+      surname: 'Doe'
+  }
 };
 
 const paramEndpoint = {
-    path: '/api/v1/user/:id',
-    response: {
-        name: 'John',
-        surname: 'Doe'
-    }
+  path: '/api/v1/user/:id',
+  response: {
+      name: 'John',
+      surname: 'Doe'
+  }
 };
 
 const regExpEndpoint = {
-    path: /\/api\/v1\/(.+)/,
-    response: {
-        name: 'John',
-        surname: 'Doe'
-    }
+  path: /\/api\/v1\/(.+)/,
+  response: {
+      name: 'John',
+      surname: 'Doe'
+  }
 };
 
 const dynamicResponseEnpoint = {
-    path: () => '/api/v1/dyn-user',
-    response: {
-        name: () => 'John',
-        surname: () => 'Doe'
-    }
+  path: () => '/api/v1/dyn-user',
+  response: {
+      name: () => 'John',
+      surname: () => 'Doe'
+  }
 };
 
-test('`Server#getData`', (assert) => {
-  const utils = require('../lib/utils');
+describe('Server', () => {
 
-  const resultSpy = sinon.stub(utils, 'result');
-  const fakeTransform = sinon.stub();
-  const fakeEmptyTransform = sinon.stub();
-  const data = {};
-  const expected = {};
-  const testParams = {
-    $req: {
-        method: 'GET'
-    },
-    $parsedUrl: {
-        path: '/api/v1/user'
-    }
-  };
+  jest.mock('../lib/utils');
+  let Server;
+  let utils;
 
-  resultSpy.returns(data);
-  fakeTransform.returns(expected)
-  fakeEmptyTransform.returns(undefined);
+  beforeAll(() => {
+    Server = require('../lib/server').Server;
+    utils = require('../lib/utils');
 
-  const { Server } = uncached('../lib/server');
-  const inst = new Server({
-    transforms: [fakeTransform]
   });
 
-  const output = inst.getData(textEndpoint, testParams);
+  describe('`Server#getData`', () => {
 
-  assert.deepEqual(
-    resultSpy.getCall(0).args,
-    [textEndpoint.response, testParams, textEndpoint],
-    'Resolves the response data `utils.result`'
-  );
+    let server;
+    let testParams;
+    let fakeTransform;
+    let fakeEmptyTransform;
 
-  assert.ok(
-    fakeTransform.calledWithExactly(data, textEndpoint, testParams),
-    'transformer is called with computed data, the endpoint and the request params'
-  );
+    beforeEach(() => {
 
-  assert.equal(
-    output,
-    expected,
-    'Returns the result of the first non-undefined transform'
-  );
+      fakeTransform = jest.fn(() => 'string');
+      fakeEmptyTransform = jest.fn();
 
-  inst.options.transforms.push(fakeEmptyTransform);
-  inst.getData(textEndpoint, testParams);
+      utils.result.mockImplementation((v) => v);
 
-  assert.equal(
-    fakeEmptyTransform.callCount,
-    0,
-    'When a transform returns a value, successive transforms are not called'
-  );
+      testParams = {
+        $req: {
+            method: 'GET'
+        },
+        $parsedUrl: {
+            path: '/api/v1/user'
+        }
+      };
 
-  fakeEmptyTransform.resetHistory();
-  fakeTransform.resetHistory();
+      server = new Server({
+        transforms: [fakeTransform]
+      });
+    });
 
-  inst.options.transforms = [fakeEmptyTransform, fakeTransform];
-  inst.getData(textEndpoint, testParams);
+    test('Resolves the response data by calling "utils.result"', () => {
+      server.getData(textEndpoint, testParams);
+      expect(utils.result).toHaveBeenCalledWith(textEndpoint.response, testParams, textEndpoint);
+    });
 
-  assert.equal(
-    fakeEmptyTransform.callCount + fakeTransform.callCount,
-    2,
-    'When a transform returns undefined executes the next one'
-  );
+    test('transformer is called with computed data, the endpoint and the request params', () => {
+      server.getData(textEndpoint, testParams);
+      expect(fakeTransform).toHaveBeenCalledWith(textEndpoint.response, textEndpoint, testParams);
+    });
 
-  utils.result.restore();
-  assert.end();
+    test('returns the result of the first non-undefined transform', () => {
+      const output = server.getData(textEndpoint, testParams);
+      const expected = fakeTransform();
+      expect(output).toBe(expected);
+    });
+
+    test('when a transform returns a value, successive transforms are not called', () => {
+      server.options.transforms.push(fakeEmptyTransform);
+      server.getData(textEndpoint, testParams);
+      expect(fakeEmptyTransform).toHaveBeenCalledTimes(0);
+    });
+
+    test('when a transform returns undefined executes the next one', () => {
+      server.options.transforms = [fakeEmptyTransform, fakeTransform];
+      server.getData(textEndpoint, testParams);
+      expect(fakeEmptyTransform).toHaveBeenCalledTimes(1);
+      expect(fakeTransform).toHaveBeenCalledTimes(1);
+    });
+
+  });
 
 });
 
@@ -188,7 +182,7 @@ test('`Server#getData`', (assert) => {
 });
 
 */
-
+/*
 test('`Server#getEndPoint` basic', (assert) => {
 
     const options = {
@@ -270,8 +264,8 @@ test('`Server#getEndPoint` basic', (assert) => {
 
     assert.end();
 
-});
-
+});*/
+/*
 test('`Server#getEndPoint` parameters and regexps', (assert) => {
 
     const options = {
@@ -392,7 +386,8 @@ test('`Server instance`', (assert) => {
 
 });
 
-
+*/
+/*
 test('`middleware basic usage`', (assert) => {
 
     const options = {
@@ -445,7 +440,8 @@ test('`middleware basic usage`', (assert) => {
     assert.end();
 
 });
-
+*/
+/*
 test('`allows array as JSON results`', (assert) => {
 
     const users = [{
@@ -484,6 +480,4 @@ test('`allows array as JSON results`', (assert) => {
     );
 
     assert.end();
-});
-
-
+});*/
