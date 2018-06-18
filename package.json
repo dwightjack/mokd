@@ -13,7 +13,7 @@
   "scripts": {
     "test": "tape tests/**/*.spec.js | tap-spec",
     "lint": "eslint .",
-    "start": "nodemon --watch lib lib/server.js --config=./fixtures/config.js"
+    "start": "nodemon ./lib/cli.js --watch lib index.js --config=./fixtures/config.js"
   },
   "keywords": [
     "api",
@@ -43,6 +43,7 @@
     "connect": "~3.5.0",
     "eslint": "~4.19.1",
     "eslint-plugin-node": "~6.0.1",
+    "koa": "~2.5.1",
     "nodemon": "~1.17.0",
     "require-uncached": "~1.0.3",
     "sinon": "^6.0.0",
