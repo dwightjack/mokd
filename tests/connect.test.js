@@ -1,4 +1,3 @@
-const url = require('url');
 const connect = require('../lib/connect');
 
 describe('Connect middleware', () => {
