@@ -1,42 +1,19 @@
-const textEndpoint = {
-  path: '/api/v1/user',
-  method: 'GET',
-  response: {
-      name: 'John',
-      surname: 'Doe'
-  }
-};
-
-const paramEndpoint = {
-  path: '/api/v1/user/:id',
-  response: {
-      name: 'John',
-      surname: 'Doe'
-  }
-};
-
-const regExpEndpoint = {
-  path: /\/api\/v1\/(.+)/,
-  response: {
-      name: 'John',
-      surname: 'Doe'
-  }
-};
-
-const dynamicResponseEnpoint = {
-  path: () => '/api/v1/dyn-user',
-  response: {
-      name: () => 'John',
-      surname: () => 'Doe'
-  }
-};
 
 describe('Server', () => {
 
-  jest.mock('../lib/utils');
   let Server;
 
+  const textEndpoint = {
+    path: '/api/v1/user',
+    method: 'GET',
+    response: {
+        name: 'John',
+        surname: 'Doe'
+    }
+  };
+
   beforeAll(() => {
+    jest.mock('../lib/utils');
     Server = require('../lib/server').Server;
 
   });
