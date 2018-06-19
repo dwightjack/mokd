@@ -187,6 +187,33 @@ describe('Utils', () => {
 
   });
 
+  describe('resolveFiles()', () => {
+    let dict;
+
+    beforeEach(() => {
+      dict = {
+        '/demo': ['first.js', 'second.js']
+      };
+    });
+
+    test('resolves a dictionary of type: "folder: [...files]" to an array of paths', () => {
+      const expected = [
+        '/demo/first.js',
+        '/demo/second.js'
+      ];
+      expect(utils.resolveFiles(dict)).toEqual(expected);
+    });
+
+    test('accepts a common base folder as second option', () => {
+      const expected = [
+        'base/demo/first.js',
+        'base/demo/second.js'
+      ];
+      expect(utils.resolveFiles(dict, 'base')).toEqual(expected);
+    });
+
+  });
+
 });
 
 
