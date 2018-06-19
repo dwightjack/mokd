@@ -1,5 +1,6 @@
 const textEndpoint = {
   path: '/api/v1/user',
+  method: 'GET',
   response: {
       name: 'John',
       surname: 'Doe'
@@ -34,11 +35,9 @@ describe('Server', () => {
 
   jest.mock('../lib/utils');
   let Server;
-  let utils;
 
   beforeAll(() => {
     Server = require('../lib/server').Server;
-    utils = require('../lib/utils');
 
   });
 
@@ -48,8 +47,10 @@ describe('Server', () => {
     let testParams;
     let fakeTransform;
     let fakeEmptyTransform;
+    let utils;
 
     beforeEach(() => {
+      utils = require('../lib/utils');
 
       fakeTransform = jest.fn(() => 'string');
       fakeEmptyTransform = jest.fn();
@@ -101,87 +102,177 @@ describe('Server', () => {
 
   });
 
+  describe('Server#setEndpoints()', () => {
+    let server;
+    let utils;
+    let endpoints;
+
+    beforeEach(() => {
+      endpoints = [{
+        path: '/api/test'
+      }];
+      utils = require('../lib/utils');
+      utils.result.mockImplementation(() => endpoints);
+      server = new Server({
+        endpoints: null
+      });
+    });
+
+    afterAll(() => {
+      utils.result.mockImplementation((v) => v);
+    })
+
+    test('resolves endpoints', () => {
+      const obj = {};
+      server.setEndpoints(obj);
+      expect(utils.result).toHaveBeenCalledWith(obj, server);
+    });
+
+    test('updates "options.endpoints" with the new endpoints', () => {
+      const e = [];
+      utils.result.mockImplementation(() => e);
+      server.setEndpoints(e);
+      expect(server.options.endpoints).toBe(e);
+    });
+
+    test('iterates "utils.createEndpoint" over endpoints', () => {
+      server.setEndpoints(endpoints);
+      expect(utils.createEndpoint).toHaveBeenCalledWith(endpoints[0], server.options)
+    });
+
+    test('assigns iterated array to "this.endpoints"', () => {
+      expect(server.endpoints).toBeUndefined();
+      utils.createEndpoint.mockImplementation(() => endpoints[0]);
+      server.setEndpoints(endpoints);
+      expect(server.endpoints).toHaveLength(1);
+      expect(server.endpoints[0]).toBe(endpoints[0]);
+    });
+
+  });
+
+  describe('Server#computeParams', () => {
+
+    let server;
+    let req;
+    beforeEach(() => {
+      req = {
+        url: '/api/users'
+      };
+      server = new Server({
+        endpoints: null
+      });
+    });
+
+    test('parses request url with "url.parse"', () => {
+      const url = require('url');
+      jest.spyOn(url, 'parse');
+      server.computeParams(req);
+      expect(url.parse).toHaveBeenCalledWith(req.url, true);
+      url.parse.mockRestore();
+    });
+
+    test('iterates over request interceptors', () => {
+      const spy = jest.fn();
+      server.options.interceptors = [spy];
+
+      server.computeParams(req);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    test('uses "reduce" to iterate', () => {
+      const int1 = () => ({ first: 1});
+      const int2 = (v) => Object.assign(v, { second: 2 });
+      const expected = { first: 1, second: 2 };
+
+      server.options.interceptors = [int1, int2];
+
+      const result = server.computeParams(req);
+      expect(result).toEqual(expected);
+    });
+
+    test('returns a params object', () => {
+      const result = server.computeParams(req);
+
+      expect(result).toEqual({
+        $req: req,
+        $parsedUrl: require('url').parse(req.url, true),
+        $routeMatch: null
+      });
+    });
+
+  });
+
+  describe('Server#getEndPoint', () => {
+
+    const postReq = { method: 'POST' };
+    const getReq = { method: 'GET' };
+    const $parsedUrl = { pathname: '/api/products' };
+
+    const params = (obj) => Object.assign({
+      $parsedUrl: {
+        path: '/api/v1/user'
+      }
+    }, obj);
+
+    let server;
+    let utils;
+
+    beforeEach(() => {
+      utils = require('../lib/utils');
+      utils.result.mockImplementation((v) => v)
+      utils.routeMatch.mockReturnValue(false)
+
+      server = new Server();
+      server.endpoints = [textEndpoint];
+    });
+
+    test('returns "undefined" if method do NOT match', () => {
+      const p = params({ $req: postReq });
+      expect(server.getEndPoint(p)).toBeUndefined();
+    });
+
+    test('tries to match the request path to endpoint\'s "path" property', () => {
+      const p = params({ $req: getReq, $parsedUrl });
+
+      utils.routeMatch.mockReturnValue(false)
+
+      server.getEndPoint(p);
+
+      expect(utils.result).toHaveBeenCalledWith(textEndpoint.path);
+      expect(utils.routeMatch).toHaveBeenCalledWith(textEndpoint.path, $parsedUrl.pathname);
+    });
+
+    test('returns the matching endpoint on success', () => {
+      const p = params({ $req: getReq, $parsedUrl });
+      utils.routeMatch.mockReturnValue(true)
+      expect(server.getEndPoint(p)).toBe(textEndpoint);
+    });
+
+    test('assigns the result of "routeMatch" to ".$routeMatch" param', () => {
+      const ret = {};
+      const p = params({ $req: getReq, $parsedUrl });
+      utils.routeMatch.mockReturnValue(ret)
+      server.getEndPoint(p);
+
+      expect(p.$routeMatch).toBe(ret);
+
+    });
+
+    test('if endpoint has fragments ("_key") associates matches with them', () => {
+      const expected = { id: 10, name: 'John' };
+      const _keys = ['id', 'name'].map((name) => ({ name }))
+      const p = params({ $req: getReq, $parsedUrl });
+      server.endpoints = [Object.assign({ _keys }, textEndpoint )];
+      utils.routeMatch.mockReturnValue([null, 10, 'John'])
+      server.getEndPoint(p);
+      expect(p.$routeMatch).toEqual(expected);
+
+    });
+
+  });
+
 });
 
-/*
-test('`Server#getData`', (assert) => {
-
-    const _ = require('lodash');
-    const utils = require('../lib/utils');
-
-    const resultSpy = sinon.spy(utils, 'result');
-    const stringifySpy = sinon.spy(JSON, 'stringify');
-
-    const { Server } = uncached('../lib/server');
-
-    const testParams = {
-        $req: {
-            method: 'GET'
-        },
-        $parsedUrl: {
-            path: '/api/v1/user'
-        }
-    };
-
-    const testEndpoint = Object.assign({
-        contentType: 'application/json'
-    }, textEndpoint);
-
-    const params = _.clone(testParams);
-    const data = Server.parseData(testEndpoint, params);
-
-    assert.ok(
-        typeof data === 'string',
-        'Returns a string'
-    );
-
-    assert.deepEqual(
-        resultSpy.getCall(0).args,
-        [testEndpoint.response, params, testEndpoint],
-        'Resolves the response with `utils.result`'
-    );
-
-    assert.ok(
-        resultSpy.getCall(0).returned(sinon.match.object),
-        'Returns an object whenever the response is an object'
-    );
-
-    assert.equal(
-        Object.keys(textEndpoint.response).length,
-        resultSpy.callCount - 1,
-        'Calls `utils.result` on every key of the response'
-    );
-
-    assert.equal(
-        stringifySpy.callCount,
-        1,
-        'Expects a stringify-ed JSON to be returned'
-    );
-
-
-    //special cases test
-
-    stringifySpy.resetHistory();
-    resultSpy.resetHistory();
-
-    //response type is not JSON
-
-    testEndpoint.contentType = 'text/html';
-    Server.parseData(testEndpoint, params);
-
-    assert.ok(
-        stringifySpy.callCount === 0 && resultSpy.callCount === 1,
-        'Not parsing and stringify-ing data when endpoint contentType is not `application/json`'
-    );
-
-    JSON.stringify.restore();
-    utils.result.restore();
-
-    assert.end();
-
-});
-
-*/
 /*
 test('`Server#getEndPoint` basic', (assert) => {
 
