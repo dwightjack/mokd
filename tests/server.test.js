@@ -271,6 +271,70 @@ describe('Server', () => {
 
   });
 
+  describe('Server#resolve', () => {
+
+    const params = {};
+
+    let server;
+
+    beforeEach(() => {
+      server = new Server({
+        endpoints: null
+      });
+
+      jest.spyOn(server, 'computeParams');
+      jest.spyOn(server, 'getEndPoint');
+
+      server.computeParams.mockReturnValue(params);
+
+    });
+
+    afterEach(() => {
+      server.computeParams.mockRestore();
+      server.getEndPoint.mockRestore();
+    });
+
+    test('combines Server#computeParams and Server#getEndPoint', () => {
+      const req = {};
+      server.getEndPoint.mockReturnValue(textEndpoint);
+
+      server.resolve(req);
+
+      expect(server.computeParams).toHaveBeenCalledWith(req);
+      expect(server.getEndPoint).toHaveBeenCalledWith(params);
+
+    });
+
+    test('returns an empty object if none of the endpoints matches', () => {
+      server.getEndPoint.mockReturnValue(undefined);
+      const result = server.resolve({});
+      expect(result).toEqual({});
+    });
+
+    test('on endpoint match, computes response data', () => {
+      const spy = jest.spyOn(server, 'getData');
+      server.getEndPoint.mockReturnValue(textEndpoint);
+
+      server.resolve({});
+      expect(spy).toHaveBeenCalledWith(textEndpoint, params);
+
+      server.getData.mockRestore();
+    });
+
+    test('returns an object with response data and the endpoint configuration on match', () => {
+      const expected = {};
+      const spy = jest.spyOn(server, 'getData');
+      spy.mockReturnValue(expected);
+      server.getEndPoint.mockReturnValue(textEndpoint);
+
+      const output = server.resolve({});
+      expect(output).toEqual({ data: expected, endpoint : textEndpoint });
+
+      server.getData.mockRestore();
+    });
+
+  });
+
 });
 
 /*
