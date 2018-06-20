@@ -1,9 +1,14 @@
 const _ = require('lodash');
 const pathToRegexp = require('path-to-regexp');
 
-const utils = require('../lib/utils');
-
 describe('Utils', () => {
+
+  let utils;
+
+  beforeAll(() => {
+    jest.unmock('../lib/utils');
+    utils = require('../lib/utils');
+  });
 
   describe('result()', () => {
     test('if first argument is NOT a function returns its value', () => {
@@ -142,8 +147,21 @@ describe('Utils', () => {
       contentType: 'application/json'
     };
 
+    let transform;
+
+    beforeAll(() => {
+      transform = utils.transformJSON();
+    });
+
+    test('accepts a custom stringify function', () => {
+      const data = [];
+      const spy = jest.fn();
+      utils.transformJSON(spy)(data, { contentType: 'application/json' });
+      expect(spy).toHaveBeenCalledWith(data);
+    })
+
     test('returns "undefined" when matched endpoint contentType is NOT "application/json"', () => {
-      const result = utils.transformJSON({}, { contentType: 'text/html' });
+      const result = transform({}, { contentType: 'text/html' });
       expect(result).toBeUndefined()
     });
 
@@ -155,10 +173,10 @@ describe('Utils', () => {
       const array = [{
         name: 'John'
       }]
-      const result = utils.transformJSON(data, endpoint);
+      const result = transform(data, endpoint);
       expect(result).toBe(JSON.stringify(data));
 
-      const resultArray = utils.transformJSON(array, endpoint);
+      const resultArray = transform(array, endpoint);
       expect(resultArray).toBe(JSON.stringify(array));
     });
 
@@ -167,7 +185,7 @@ describe('Utils', () => {
         name: 'John',
         surname: () => 'Doe'
       };
-      const result = utils.transformJSON(data, endpoint);
+      const result = transform(data, endpoint);
       const expected = JSON.stringify({ name: 'John', surname: 'Doe' });
       expect(result).toBe(expected);
     });
@@ -179,7 +197,7 @@ describe('Utils', () => {
         surname: spy
       };
       const params = {};
-      utils.transformJSON(data, endpoint, params);
+      transform(data, endpoint, params);
 
       expect(spy).toHaveBeenCalledTimes(2);
       expect(spy).toHaveBeenCalledWith(params, endpoint);
