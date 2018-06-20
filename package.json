@@ -11,7 +11,7 @@
     "index.js"
   ],
   "scripts": {
-    "test": "tape tests/**/*.spec.js | tap-spec",
+    "test": "jest",
     "lint": "eslint .",
     "start": "nodemon ./lib/cli.js --watch lib index.js --config=./fixtures/config.js"
   },
@@ -32,12 +32,27 @@
     "url": "https://github.com/dwightjack/connect-mock-api/issues"
   },
   "homepage": "https://github.com/dwightjack/connect-mock-api",
+  "jest": {
+    "verbose": true,
+    "bail": false,
+    "collectCoverageFrom": [
+      "**/lib/**/*.js",
+      "index.js",
+      "!**/lib/cli.js",
+      "!**/__mocks__/**",
+      "!**/__tests__/**"
+    ],
+    "collectCoverage": true,
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/*.test.js"
+    ]
+  },
   "dependencies": {
     "chokidar": "~2.0.3",
     "lodash": "4.17.10",
     "path-to-regexp": "2.2.1",
     "require-uncached": "~1.0.3",
-    "tape-async": "~2.3.0",
     "yargs": "11.0.0"
   },
   "devDependencies": {
@@ -45,10 +60,8 @@
     "connect": "~3.5.0",
     "eslint": "~4.19.1",
     "eslint-plugin-node": "~6.0.1",
+    "jest": "~23.1.0",
     "koa": "~2.5.1",
-    "nodemon": "~1.17.0",
-    "sinon": "^6.0.0",
-    "tap-spec": "^5.0.0",
-    "tape": "~4.9.0"
+    "nodemon": "~1.17.0"
   }
 }

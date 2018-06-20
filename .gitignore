@@ -85,6 +85,7 @@ Icon
 
 #Exclude logs
 node_modules
+coverage
 log
 *.log
 yarn.lock
