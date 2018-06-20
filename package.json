@@ -38,6 +38,7 @@
     "collectCoverageFrom": [
       "**/lib/**/*.js",
       "index.js",
+      "!**/lib/cli.js",
       "!**/__mocks__/**",
       "!**/__tests__/**"
     ],
