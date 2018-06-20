@@ -11,6 +11,7 @@
     "index.js"
   ],
   "scripts": {
+    "prepublishOnly": "npm run lint && npm run test",
     "test": "jest",
     "lint": "eslint .",
     "start": "nodemon ./lib/cli.js --watch lib index.js --config=./fixtures/config.js"
