@@ -1,18 +1,20 @@
 {
-  "name": "connect-mock-api",
-  "version": "1.2.0",
-  "description": "Fake API server and middleware for connect and express",
+  "name": "mokd",
+  "version": "2.0.0",
+  "description": "Programmable fake APIs server",
   "author": "Marco Solazzi",
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "./index.js",
   "files": [
     "lib",
-    "bin"
+    "bin",
+    "index.js"
   ],
   "scripts": {
-    "test": "tape tests/**/*.spec.js | tap-spec",
+    "prepublishOnly": "npm run lint && npm run test",
+    "test": "jest",
     "lint": "eslint .",
-    "start": "nodemon --watch lib lib/server.js --config=./fixtures/config.js"
+    "start": "nodemon ./lib/cli.js --watch lib index.js --config=./fixtures/config.js"
   },
   "keywords": [
     "api",
@@ -21,33 +23,46 @@
     "middleware"
   ],
   "engines": {
-    "node": ">=6.9.0"
-  },
-  "bin": {
-    "mock-api": "./bin/index.js"
+    "node": ">=8.9.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dwightjack/connect-mock-api.git"
+    "url": "https://github.com/dwightjack/mokd.git"
   },
   "bugs": {
-    "url": "https://github.com/dwightjack/connect-mock-api/issues"
+    "url": "https://github.com/dwightjack/mokd/issues"
   },
-  "homepage": "https://github.com/dwightjack/connect-mock-api",
+  "homepage": "https://github.com/dwightjack/mokd",
+  "jest": {
+    "verbose": true,
+    "bail": false,
+    "collectCoverageFrom": [
+      "**/lib/**/*.js",
+      "index.js",
+      "!**/lib/cli.js",
+      "!**/__mocks__/**",
+      "!**/__tests__/**"
+    ],
+    "collectCoverage": true,
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/*.test.js"
+    ]
+  },
   "dependencies": {
-    "chance": "1.0.4",
-    "lodash": "4.17.4",
-    "path-to-regexp": "1.7.0",
-    "yargs": "6.6.0"
+    "chokidar": "~2.0.3",
+    "lodash": "4.17.10",
+    "path-to-regexp": "2.2.1",
+    "require-uncached": "~1.0.3",
+    "yargs": "11.0.0"
   },
   "devDependencies": {
-    "connect": "3.5.1",
-    "eslint": "3.15.0",
-    "eslint-config-airbnb-base": "11.1.0",
-    "eslint-plugin-import": "2.2.0",
-    "nodemon": "1.11.0",
-    "sinon": "1.17.7",
-    "tap-spec": "4.1.1",
-    "tape": "4.6.3"
+    "chance": "~1.0.16",
+    "connect": "~3.5.0",
+    "eslint": "~4.19.1",
+    "eslint-plugin-node": "~6.0.1",
+    "jest": "~23.1.0",
+    "koa": "~2.5.1",
+    "nodemon": "~1.17.0"
   }
 }
