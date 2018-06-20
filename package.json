@@ -1,7 +1,7 @@
 {
-  "name": "connect-mock-api",
+  "name": "mokd",
   "version": "1.2.0",
-  "description": "Fake API server and middleware for connect and express",
+  "description": "Programmable fake APIs server",
   "author": "Marco Solazzi",
   "license": "MIT",
   "main": "./index.js",
@@ -26,12 +26,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dwightjack/connect-mock-api.git"
+    "url": "https://github.com/dwightjack/mokd.git"
   },
   "bugs": {
-    "url": "https://github.com/dwightjack/connect-mock-api/issues"
+    "url": "https://github.com/dwightjack/mokd/issues"
   },
-  "homepage": "https://github.com/dwightjack/connect-mock-api",
+  "homepage": "https://github.com/dwightjack/mokd",
   "jest": {
     "verbose": true,
     "bail": false,
