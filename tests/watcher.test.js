@@ -66,64 +66,13 @@ describe('Watcher', () => {
       expect(inst).toEqual(expect.any(Object));
     });
 
-    test('creates a chokidar watcher', () => {
-      createWatcher(config);
-      expect(chokidar.watch).toHaveBeenCalled();
-    });
-
-    test('passes "config.paths" to the watcher', () => {
-      createWatcher(config);
-      expect(chokidar.watch).toHaveBeenCalledWith(config.paths, expect.any(Object))
-    });
-
-    test('passes an enhanced "config.watcherOptions" to the watcher', () => {
-      createWatcher(config);
-      const [, options] = chokidar.watch.mock.calls[0];
-      const expected = {
-        cwd: config.cwd,
-        custom: true,
-        ignoreInitial: true
-      };
-      expect(options).toEqual(expected)
-    });
-
-    test('default watcher options can be overwritten', () => {
-      config.watchOptions = { ignoreInitial: false };
-      config.cwd = 'demo';
-
-      createWatcher(config);
-
-      const [, options] = chokidar.watch.mock.calls[0];
-      const expected = {
-        cwd: 'demo',
-        ignoreInitial: false
-      };
-      expect(options).toEqual(expected)
-    });
-
-    test('adds "config.entrypoint" to the watched file list', () => {
-      createWatcher(config);
-      expect(watcher.add).toHaveBeenCalled();
-    });
-
-    test('resolves entrypoint path from cwd', () => {
-      const { join } = require('path');
-      createWatcher(config);
-      expect(watcher.add).toHaveBeenCalledWith(join(config.cwd, config.entrypoint));
-    });
-
-    test('does NOT resolve absolute paths', () => {
-      config.entrypoint = '/config.js';
-      createWatcher(config);
-      expect(watcher.add).toHaveBeenCalledWith(config.entrypoint);
-    });
-
   });
 
   describe('.close', ()=> {
 
     test('proxies to chokidar\'s close method', () => {
       const inst = createWatcher(config);
+      inst.setWatcher()
       inst.close()
       expect(watcher.close).toHaveBeenCalled();
     });
@@ -133,6 +82,7 @@ describe('Watcher', () => {
     test('proxies to chokidar\'s on method', () => {
       const inst = createWatcher(config);
       const args = ['all', true];
+      inst.setWatcher()
       inst.on(...args);
       expect(watcher.on).toHaveBeenCalledWith(...args);
     });
@@ -148,6 +98,7 @@ describe('Watcher', () => {
     beforeEach(() => {
       utils = require('../lib/utils');
       inst = createWatcher(config);
+      inst.setWatcher()
       watcher.getWatched.mockReturnValue(fileMap);
     });
 
@@ -177,6 +128,7 @@ describe('Watcher', () => {
 
     beforeEach(() => {
       inst = createWatcher(config);
+      inst.setWatcher()
       jest.spyOn(inst, 'clearCache');
     });
 
@@ -205,8 +157,72 @@ describe('Watcher', () => {
       const expected = [];
       const uncached = require('require-uncached');
       uncached.mockReturnValue(expected);
+      inst.setWatcher();
       inst.update();
       expect(server.setEndpoints).toHaveBeenCalledWith(expected);
+    });
+
+  });
+
+  describe('.setWatcher', () => {
+
+    let inst;
+
+    beforeEach(() => {
+      inst = createWatcher(config);
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    test('creates a chokidar watcher', () => {
+      inst.setWatcher()
+      expect(chokidar.watch).toHaveBeenCalled();
+    });
+
+    test('passes "config.paths" to the watcher', () => {
+      inst.setWatcher()
+      expect(chokidar.watch).toHaveBeenCalledWith(config.paths, expect.any(Object))
+    });
+
+    test('passes an enhanced "config.watcherOptions" to the watcher', () => {
+      inst.setWatcher()
+      const [, options] = chokidar.watch.mock.calls[0];
+      const expected = {
+        cwd: config.cwd,
+        custom: true,
+        ignoreInitial: true
+      };
+      expect(options).toEqual(expected)
+    });
+
+    test('default watcher options can be overwritten', () => {
+      config.watchOptions = { ignoreInitial: false };
+      config.cwd = 'demo';
+
+      createWatcher(config).setWatcher();
+
+      const [, options] = chokidar.watch.mock.calls[0];
+      const expected = {
+        cwd: 'demo',
+        ignoreInitial: false
+      };
+      expect(options).toEqual(expected)
+    });
+
+    test('adds "config.entrypoint" to the watched file list', () => {
+      inst.setWatcher()
+      expect(watcher.add).toHaveBeenCalled();
+    });
+
+    test('resolves entrypoint path from cwd', () => {
+      const { join } = require('path');
+      inst.setWatcher()
+      expect(watcher.add).toHaveBeenCalledWith(join(config.cwd, config.entrypoint));
+    });
+
+    test('does NOT resolve absolute paths', () => {
+      config.entrypoint = '/config.js';
+      createWatcher(config).setWatcher();
+      expect(watcher.add).toHaveBeenCalledWith(config.entrypoint);
     });
 
   });
@@ -219,6 +235,7 @@ describe('Watcher', () => {
     beforeEach(() => {
       inst = createWatcher(config);
       jest.spyOn(inst, 'update');
+      jest.spyOn(inst, 'setWatcher');
       jest.spyOn(console, 'warn').mockImplementation(() => {});
       watcher.on.mockImplementation((e, fn) => { handler = fn })
     });
@@ -229,6 +246,11 @@ describe('Watcher', () => {
 
     afterAll(() => {
       console.warn.mockRestore();
+    });
+
+    test('calls "setWatcher"', () => {
+      inst.start();
+      expect(inst.setWatcher).toHaveBeenCalled();
     });
 
     test('calls "update" without clearing che cache', () => {
